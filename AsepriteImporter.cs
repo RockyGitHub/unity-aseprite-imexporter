@@ -12,7 +12,7 @@ public partial class AsepriteImporter : OdinEditorWindow
     private static readonly string ASEPRITE_STANDARD_PATH_MACOSX = @"/Applications/Aseprite.app/Contents/MacOS/aseprite";
 
     [BoxGroup("SettingsSO"), OnValueChanged("LoadSettingsAsset")]
-    public AsepriteImporterSettingsSO SavedSettingsAsset;
+    public AsepriteImporterSettingsSO[] SavedSettingsAsset;
 
     [Sirenix.OdinInspector.Title("Drag and drop works too"), BoxGroup("Exporting spritesheets")]
     [Sirenix.OdinInspector.FilePath(RequireExistingPath = true), BoxGroup("Exporting spritesheets"), OnValueChanged("ValidateExecutable")]
@@ -43,20 +43,26 @@ public partial class AsepriteImporter : OdinEditorWindow
             return;
 
         _running = true;
-        AsepriteExporter exporter = new AsepriteExporter();
-        exporter.Setup(SavedSettingsAsset);
-        exporter.ExportAllTagsAsSpriteSheetForEachLayer();
+        foreach (AsepriteImporterSettingsSO settingsFile in SavedSettingsAsset) {
+            if (settingsFile == null)
+                continue;
 
-        exporter.BlockToFinish();
-        AssetDatabase.Refresh();
+            AsepriteExporter exporter = new AsepriteExporter();
+            exporter.Setup(settingsFile);
+            exporter.ExportAllTagsAsSpriteSheetForEachLayer();
+
+            exporter.BlockToFinish();
+            AssetDatabase.Refresh();
+        }
         _running = false;
     }
     private void LoadSettingsAsset()
     {
-        Debug.Log("new settings asset! " + SavedSettingsAsset.name);
+        if (SavedSettingsAsset.Length > 0)
+            Debug.Log("new settings asset! " + SavedSettingsAsset[SavedSettingsAsset.Length].name);
     }
 
-    private void LoadJsonPreview()
+/*    private void LoadJsonPreview()
     {
         TextAsset asset = (TextAsset)AssetDatabase.LoadAssetAtPath(SavedSettingsAsset.AsepriteJsonSettings, typeof(TextAsset));
         if (asset == null)
@@ -66,7 +72,7 @@ public partial class AsepriteImporter : OdinEditorWindow
             return;
         }
         //_jsonSettings = JsonUtility.FromJson<AsepriteExporter.JsonSettings>(asset.text);
-    }
+    }*/
 
     private void ValidateExecutable()
     {
@@ -80,14 +86,21 @@ public partial class AsepriteImporter : OdinEditorWindow
     {
         if (AsepriteExecutable == string.Empty)
             return Color.red;
-        if (SavedSettingsAsset.AsepriteFile == string.Empty)
+        if (SavedSettingsAsset == null)
             return Color.red;
-        if (SavedSettingsAsset.AsepriteJsonSettings == string.Empty)
-            return Color.red;
-        if (SavedSettingsAsset.OutputRootPathSheets == string.Empty)
-            return Color.red;
-        if (_running)
-            return Color.yellow;
+        foreach (AsepriteImporterSettingsSO settingsFile in SavedSettingsAsset)
+        {
+            if (settingsFile == null)
+                continue;
+            if (settingsFile.AsepriteFile == string.Empty)
+                return Color.red;
+            if (settingsFile.AsepriteJsonSettings == string.Empty)
+                return Color.red;
+            if (settingsFile.OutputRootPathSheets == string.Empty)
+                return Color.red;
+            if (_running)
+                return Color.yellow;
+        }
 
         return Color.green;
     }
