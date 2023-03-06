@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,3 +54,4 @@ public class AsepriteImporterSettingsSO : ScriptableObject
             Debug.LogWarning("This setting is not implemented yet: [" + OutputType.ToString() + "]");
     }
 }
+#endif

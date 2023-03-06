@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,7 +6,6 @@ using UnityEditor;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector;
 
-#if UNITY_EDITOR
 public partial class AsepriteImporter : OdinEditorWindow
 {
     private static readonly string ASEPRITE_STANDARD_PATH_WINDOWS = @"C:\Program Files\Aseprite\Aseprite.exe";
